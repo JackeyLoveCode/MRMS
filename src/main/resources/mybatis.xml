@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- 指定类型别名 -->
+	<typeAliases>
+		<package name="com.hiveview.mrms.pojo"/>
+	</typeAliases>
+	<!-- 配置分页插件 -->
+	<plugins>
+		<plugin interceptor="com.github.pagehelper.PageHelper">
+			<!-- 指定使用的数据库是什么 -->
+			<property name="dialect" value="mysql"/>
+		</plugin>
+	</plugins>
+	<!-- 指定映射文件的位置 -->
+	<mappers>
+		<package name="com.hiveview.mrms.mapper"/>
+	</mappers>
+</configuration>

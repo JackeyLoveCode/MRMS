@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hiveview.mrms.mapper.MovieMapper">
+  <resultMap id="BaseResultMap" type="com.hiveview.mrms.pojo.Movie" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="actors" property="actors" jdbcType="VARCHAR" />
+    <result column="area" property="area" jdbcType="VARCHAR" />
+    <result column="language" property="language" jdbcType="VARCHAR" />
+    <result column="director" property="director" jdbcType="VARCHAR" />
+    <result column="movie_path" property="moviePath" jdbcType="VARCHAR" />
+    <result column="img_path" property="imgPath" jdbcType="VARCHAR" />
+    <result column="time" property="time" jdbcType="TIMESTAMP" />
+    <result column="plot" property="plot" jdbcType="VARCHAR" />
+	<result column="type" property="type" jdbcType="INTEGER" />
+    <result column="play_times" property="playTimes" jdbcType="INTEGER" />
+    <result column="favorite_times" property="favoriteTimes" jdbcType="INTEGER"/>
+  </resultMap>
+  <sql id="where_params">
+  	<where>
+  		<if test="type != null and type != '' and type != '全部'">
+  			and mv.name = #{type}
+  		</if>
+  		<if test="area != null and area != '' and area != '全部'">
+  			and m.area = #{area}
+  		</if>
+  		<if test="year != null and year != '' and year != '全部'">
+  			YEAR(time) = #{year}
+  		</if>
+  	</where>
+  </sql>
+  <sql id="limit_sql">
+  		limit #{pageIndex},#{rows}
+  </sql>
+  <select id="getMoviesOrderByPlayTimes" resultMap="BaseResultMap">
+    select * from movie order by play_times desc limit 0,10
+  </select>
+  <select id="selectMovieBytitleOrActors" resultType="map">
+  	   select m.*,mv.name 
+  		from movie m 
+  		join movie_type mv 
+  		on m.type = mv.id 
+  		where m.actors like "%"#{searchText}"%" or m.title like "%"#{searchText}"%"
+  </select>
+  <select id="queryByCondition" parameterType="com.hiveview.mrms.pojo.Condition" resultType="map">
+  	select m.*,mv.name from movie m join movie_type mv on m.type = mv.id <include refid="where_params"/>
+  	 <include refid="limit_sql"/>
+  </select>
+  <select id="countByCondition" parameterType="com.hiveview.mrms.pojo.Condition" resultType="Integer">
+    select count(1) from movie m join movie_type mv on m.type = mv.id <include refid="where_params"/>
+  </select>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, title, actors, type, area, language, director, movie_path, img_path, time, plot,play_times,favorite_times
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.hiveview.mrms.pojo.MovieExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from movie
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from movie
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from movie
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.hiveview.mrms.pojo.MovieExample" >
+    delete from movie
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.hiveview.mrms.pojo.Movie" >
+    insert into movie (id, title, actors, 
+      type, area, language, 
+      director, movie_path, img_path, 
+      time, plot)
+    values (#{id,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{actors,jdbcType=VARCHAR}, 
+      #{type,jdbcType=INTEGER}, #{area,jdbcType=VARCHAR}, #{language,jdbcType=VARCHAR}, 
+      #{director,jdbcType=VARCHAR}, #{moviePath,jdbcType=VARCHAR}, #{imgPath,jdbcType=VARCHAR}, 
+      #{time,jdbcType=TIMESTAMP}, #{plot,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.hiveview.mrms.pojo.Movie" >
+    insert into movie
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="title != null" >
+        title,
+      </if>
+      <if test="actors != null" >
+        actors,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="area != null" >
+        area,
+      </if>
+      <if test="language != null" >
+        language,
+      </if>
+      <if test="director != null" >
+        director,
+      </if>
+      <if test="moviePath != null" >
+        movie_path,
+      </if>
+      <if test="imgPath != null" >
+        img_path,
+      </if>
+      <if test="time != null" >
+        time,
+      </if>
+      <if test="plot != null" >
+        plot,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="actors != null" >
+        #{actors,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="area != null" >
+        #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="language != null" >
+        #{language,jdbcType=VARCHAR},
+      </if>
+      <if test="director != null" >
+        #{director,jdbcType=VARCHAR},
+      </if>
+      <if test="moviePath != null" >
+        #{moviePath,jdbcType=VARCHAR},
+      </if>
+      <if test="imgPath != null" >
+        #{imgPath,jdbcType=VARCHAR},
+      </if>
+      <if test="time != null" >
+        #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="plot != null" >
+        #{plot,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.hiveview.mrms.pojo.MovieExample" resultType="java.lang.Integer" >
+    select count(*) from movie
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update movie
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.title != null" >
+        title = #{record.title,jdbcType=VARCHAR},
+      </if>
+      <if test="record.actors != null" >
+        actors = #{record.actors,jdbcType=VARCHAR},
+      </if>
+      <if test="record.type.id != null" >
+        type.id = #{record.type,jdbcType=INTEGER},
+      </if>
+      <if test="record.area != null" >
+        area = #{record.area,jdbcType=VARCHAR},
+      </if>
+      <if test="record.language != null" >
+        language = #{record.language,jdbcType=VARCHAR},
+      </if>
+      <if test="record.director != null" >
+        director = #{record.director,jdbcType=VARCHAR},
+      </if>
+      <if test="record.moviePath != null" >
+        movie_path = #{record.moviePath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.imgPath != null" >
+        img_path = #{record.imgPath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.time != null" >
+        time = #{record.time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.plot != null" >
+        plot = #{record.plot,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update movie
+    set id = #{record.id,jdbcType=INTEGER},
+      title = #{record.title,jdbcType=VARCHAR},
+      actors = #{record.actors,jdbcType=VARCHAR},
+      type = #{record.type,jdbcType=INTEGER},
+      area = #{record.area,jdbcType=VARCHAR},
+      language = #{record.language,jdbcType=VARCHAR},
+      director = #{record.director,jdbcType=VARCHAR},
+      movie_path = #{record.moviePath,jdbcType=VARCHAR},
+      img_path = #{record.imgPath,jdbcType=VARCHAR},
+      time = #{record.time,jdbcType=TIMESTAMP},
+      plot = #{record.plot,jdbcType=VARCHAR},
+      play_times = #{record.playTimes},
+      favorite_times = #{record.favoriteTimes}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.hiveview.mrms.pojo.Movie" >
+    update movie
+    <set >
+      <if test="title != null" >
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="actors != null" >
+        actors = #{actors,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="area != null" >
+        area = #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="language != null" >
+        language = #{language,jdbcType=VARCHAR},
+      </if>
+      <if test="director != null" >
+        director = #{director,jdbcType=VARCHAR},
+      </if>
+      <if test="moviePath != null" >
+        movie_path = #{moviePath,jdbcType=VARCHAR},
+      </if>
+      <if test="imgPath != null" >
+        img_path = #{imgPath,jdbcType=VARCHAR},
+      </if>
+      <if test="time != null" >
+        time = #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="plot != null" >
+        plot = #{plot,jdbcType=VARCHAR},
+      </if>
+      <if test="playTimes != null">
+        play_times = #{playTimes},
+      </if>
+      <if test="favoriteTimes != null">
+        favorit_times = #{favoriteTimes},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.hiveview.mrms.pojo.Movie" >
+    update movie
+    set title = #{title,jdbcType=VARCHAR},
+      actors = #{actors,jdbcType=VARCHAR},
+      type = #{type,jdbcType=INTEGER},
+      area = #{area,jdbcType=VARCHAR},
+      language = #{language,jdbcType=VARCHAR},
+      director = #{director,jdbcType=VARCHAR},
+      movie_path = #{moviePath,jdbcType=VARCHAR},
+      img_path = #{imgPath,jdbcType=VARCHAR},
+      time = #{time,jdbcType=TIMESTAMP},
+      plot = #{plot,jdbcType=VARCHAR},
+      play_times = #{playTimes,jdbcType=INTEGER},
+      favorite_times = #{favoriteTimes,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemesh>
+    <!-- 指明满足“/*”的页面，将被“/WEB-INF/pages/derorator/decorator.jsp”所装饰 -->
+    <mapping path="/*" decorator="/decorator"/>
+    <!-- 指明满足“/login.jsp*”的页面，将被排除，不被装饰 -->
+
+    <mapping path="/login.html" exclue="true"/>
+    <mapping path="/js/*" exclue="true"/>
+    <mapping path="/css/*" exclue="true"/>
+    <mapping path="/img/*" exclue="true"/>
+    <mapping path="/json/*" exclue="true"/>
+
+    <content-processor>
+        <tag-rule-bundle class="com.hiveview.mrms.util.MyTagRuleBundle"/>
+    </content-processor>
+</sitemesh>
