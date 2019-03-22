@@ -15,7 +15,6 @@ import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hiveview.mrms.mapper.FavoriteMapper;
@@ -30,7 +29,6 @@ import com.hiveview.mrms.pojo.Movie;
 import com.hiveview.mrms.pojo.MovieExample;
 import com.hiveview.mrms.pojo.MovieType;
 import com.hiveview.mrms.pojo.MovieTypeExample;
-import com.sun.org.apache.bcel.internal.generic.NEW;
 
 /**  
  * ClassName:MovieService <br/>  
@@ -295,10 +293,22 @@ public class MovieService {
 		movies.add(0,conditionMap);
 		return movies;
 	}
-	public List<Map<String, Object>> searchMovie(String searchText) {
+	public EasyUIDatagridResult searchMovie(String searchText) {
+		EasyUIDatagridResult easyUIDatagridResult = new EasyUIDatagridResult();
 		searchText = searchText.trim();
-		List<Map<String, Object>> movies = movieMapper.selectMovieBytitleOrActors(searchText); 
-		return movies;
+		List<Map<String, Object>> movies = movieMapper.selectMovieBytitleOrActors(searchText);
+		for (Map<String, Object> movie : movies) {
+			Set<String> keys = movie.keySet();
+			for (String key : keys) {
+				if("time".equals(key)){
+					String timeStr = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(movie.get("time"));
+					movie.put("time",timeStr);
+				}
+			}
+		}
+		easyUIDatagridResult.setRows(movies);
+		easyUIDatagridResult.setTotal(movies == null || movies.size() == 0 ?  0 : movies.size());
+		return easyUIDatagridResult;
 	}
 
 	public List<Map<String, Object>> selectAll() {

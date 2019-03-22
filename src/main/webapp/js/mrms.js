@@ -72,38 +72,51 @@ function validateLogForm(){
  * 搜索
  */
 var contextPath = getContextPath();
+var moviesBySearch = [];
 function search(){
+				$("input[name='sign']").val('search');
 				var searchText = $("#searchText").val();
 				$.ajax({
-					
 					type:"POST",
 					cache:false,
 					data:"searchText="+searchText,
 					url:contextPath+"/movie/search.do",
 					success:function(data){
+						moviesBySearch = data.rows;
+						data.page = 1;
+						$("input[name='page']").val(data.page);
+						$("#total_records").text("共有" + data.total + "条记录,");
+						console.log(data.total % data.perPageRows);
+						var totalPages = data.total % data.perPageRows == 0 ?  data.total / data.perPageRows : (data.total / data.perPageRows < 1 ? 1 : Math.ceil(data.total / data.perPageRows));
+						$("input[name='totalPages']").val(totalPages);
+						$("#total_pages").text("共有" + totalPages + "页," + "当前是第" + data.page + "页");
 						var html= "";
-						if(data.length == 0){
+						if(moviesBySearch.length == 0){
 							html += "<span style=\"font-family: fantasy;font-weight: bold;font-size: 20px;color:red\">\n" +
 			                "\t\t\t\t\t暂无影片\n" +
 			                "\t\t\t\t</span>";
 						}else{
-							for(var i = 0;i<data.length;i++){
+							for(var i = (data.page - 1) * data.perPageRows;i < (data.page * data.perPageRows) - 1;i++){
+								if(i >= moviesBySearch.length){
+									break;
+								}
+								console.log(moviesBySearch[i].id);
 								html += "<div style=\"border: 1px solid #ddd;margin-top:5px;overflow: hidden;\">\n" +
 				                "\t\t\t\t\n" +
 				                "\t\t\t\t<div style=\"float: left;width: 30%;\">\n" +
-				                "\t\t\t\t\t<img src=\""+"showImg.do?pathName="+data[i].img_path+"\"/>\n" +
+				                "\t\t\t\t\t<img src=\""+"showImg.do?pathName="+moviesBySearch[i].img_path+"\"/>\n" +
 				                "\t\t\t\t</div>\n" +
 				                "\t\t\t\t<div style=\"float: left;width: 70%;\">\n" +
-				                "\t\t\t\t\t<div ><a href=\"movie/detail.do?id="+data[i].id+"\" target=\"_blank\" style=\"text-decoration:none;\">"+data[i].title+"</a></div>\n" +
+				                "\t\t\t\t\t<div ><a href=\"movie/detail.do?id="+moviesBySearch[i].id+"\" target=\"_blank\" style=\"text-decoration:none;\">"+moviesBySearch[i].title+"</a></div>\n" +
 				                "\t\t\t\t\t<div>\n" +
-				                "\t\t\t\t\t\t主演:"+data[i].actors+"\n" +
+				                "\t\t\t\t\t\t主演:"+moviesBySearch[i].actors+"\n" +
 				                "\t\t\t\t\t</div>\n" +
 				                "\t\t\t\t\t<div>\n" +
-				                "\t\t\t\t\t\t<span>类型："+data[i].name+"</span><span style=\"margin-left: 50px;\">更新时间："+data[i].time+"</span>\n" +
+				                "\t\t\t\t\t\t<span>类型："+moviesBySearch[i].name+"</span><span style=\"margin-left: 50px;\">更新时间："+moviesBySearch[i].time+"</span>\n" +
 				                "\t\t\t\t\t</div>\n" +
 				                "\t\t\t\t\t<div>\n" +
 				                "\t\t\t\t\t\t<p>\n" +
-				                "\t\t\t\t\t\t\t剧情："+data[i].plot+"\n" +
+				                "\t\t\t\t\t\t\t剧情："+moviesBySearch[i].plot+"\n" +
 				                "\t\t\t\t\t\t</p>\n" +
 				                "\t\t\t\t\t</div>\n" +
 				                "\t\t\t\t</div>\n" +
@@ -111,9 +124,8 @@ function search(){
 				                "\t\t\t</div>";
 							}
 						}
-						$("#iframeDiv").empty();
-						$("#iframeDiv").append(html);
-						return ;
+						$("#dynamicDiv").empty();
+						$("#dynamicDiv").append(html);
 					}
 				});
 }
@@ -130,7 +142,7 @@ function play(){
 }
 // 刷新图片
 function changeImg() {
-	$("#imgObj").attr("src","validateCode.do?_t="+new Date().valueOf());
+	$("#imgObj").attr("src",getContextPath() + "/validateCode.do?_t="+new Date().valueOf());
 }
 /**
  * 登录
@@ -369,6 +381,6 @@ function cancelFav(id) {
 }
 function openLoginModal() {
 	console.log(new Date().valueOf());
-	$("#imgObj").attr("src","validateCode.do?_t="+new Date().valueOf());
+	$("#imgObj").attr("src",getContextPath() + '/validateCode.do?_t='+new Date().valueOf());
 	$("#loginModal").modal('show');
 }

@@ -232,9 +232,9 @@ public class MovieController {
 	 */
 	@RequestMapping("search")
 	@ResponseBody
-	public List<Map<String, Object>> search(String searchText){
-		List<Map<String, Object>> movies = movieService.searchMovie(searchText);
-		return movies;
+	public EasyUIDatagridResult search(String searchText){
+		EasyUIDatagridResult easyUIDatagridResult = movieService.searchMovie(searchText);
+		return easyUIDatagridResult;
 	}
 	/**
 	 * 
