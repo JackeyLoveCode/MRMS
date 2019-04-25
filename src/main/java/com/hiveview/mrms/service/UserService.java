@@ -91,5 +91,12 @@ public class UserService {
 		}
 		return new AjaxResult(-1,"用户名和密码不匹配",null);
 	}
+
+	public List<User> findByNickname(User user) {
+		UserExample userExample = new UserExample();
+		userExample.createCriteria().andNickNameEqualTo(user.getNickName());
+		List<User> users = userMapper.selectByExample(userExample);
+		return users;
+	}
 }
   

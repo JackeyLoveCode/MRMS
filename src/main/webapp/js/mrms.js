@@ -14,6 +14,13 @@ function validateRegForm(){
     var nickName = $("#registerForm input[name='nickName']").val(); 
 	var password = $("#registerForm input[name='password']").val();
 	var rePassword = $("#registerForm input[name='rePassword']").val();
+	var msg = $("#isExistSpan").text();
+	if(msg != ''){
+		$("#regErrorMessage span").text("用户名已存在");
+		$("#regErrorMessage").css("display","block");
+		$("#isExistSpan").text('');
+		return false;
+	}
 	if(nickName == ''){
 		$("#regErrorMessage span").text("用户名不能为空");
 		$("#regErrorMessage").css("display","block");
@@ -37,17 +44,21 @@ function validateRegForm(){
 function validateLogForm(){
     var nickName = $("#loginForm input[name='nickName']").val(); 
 	var password = $("#loginForm input[name='password']").val();
-	
+	var validateCode = $("#loginForm input[name='code']").val();
 	if(nickName == ''){
 		$("#errorMessage span").text("用户名不能为空");
 		$("#errorMessage").css("display","block");
-		return false;		
-		
-	}else if(password == ''){
+		return false;
+	}
+	if(password == ''){
 		$("#errorMessage span").text("密码不能为空");
 		$("#errorMessage").css("display","block");
-		return false;		
-		
+		return false;
+	}
+	if(validateCode == ''){
+		$("#errorMessage span").text("验证码不能为空");
+		$("#errorMessage").css("display","block");
+		return false;
 	}
 	//action="${pageContext.request.contextPath }/admin/doLogin.do"
 	$("#errorMessage").css("display","none");
@@ -135,7 +146,9 @@ function play(){
 	$.post(contextPath+'/playRecords/add.do',$("#idForm").serialize(),function(data){
 		if(data.status != 200){
 			openLoginModal();
+			$("#isRedirectToPlayUrl").val('yes');
 		}else{
+			$("#isRedirectToPlayUrl").val('no');
 			window.open(moviePath,'','fullscreen=yes,scrollbars=yes,status =yes,resizable=true');
 		}
 	});
@@ -159,7 +172,19 @@ function login(){
 		success:function(data){
 			if(data.status == 200){
 				$('#loginModal').modal('hide');
-				window.location.reload();
+				var isRedirectToPlayUrl = $("#isRedirectToPlayUrl").val();
+				var isRedirectToFavUrl = $("#isRedirectToFavUrl").val();
+				if(isRedirectToPlayUrl == 'yes') {
+					play();
+					window.location.reload();
+				}else if(isRedirectToFavUrl == 'yes'){
+					var id = $("#id").val();
+					favorite(id);
+					window.location.reload();
+				}else{
+					window.location.reload();
+				}
+
 			}else{
 				$("#errorMessage").css("display","block");
 				$("#imgObj").attr("src","validateCode.do?_t="+new Date().valueOf());
@@ -182,11 +207,13 @@ function favorite(id){
 			if(data.status == 201){
 				//201:用户未登录  202:用户已收藏  200:收藏成功
 				openLoginModal();
-
+				$("#isRedirectToFavUrl").val('yes');
 			}else if(data.status == 202){
+				$("#isRedirectToFavUrl").val('no');
 				alert("您已收藏");
 			}else{
 				alert("收藏成功");
+				$("#isRedirectToFavUrl").val('no');
 				$("#favButton").text('已收藏');
 				$("#favButton").attr('disabled','disabled');
 			}
@@ -300,7 +327,6 @@ function queryByType(type){
 					'\t\t\t\t\t\t\t\t'+records[i].title+'\n' +
 					'\t\t\t\t\t\t\t</p>\n' +
 					'\t\t\t\t\t\t\t<p >\n' +
-					'\t\t\t\t\t\t\t\t观看到50%\n' +
 					'\t\t\t\t\t\t\t</p><p >\n' +
 					'\t\t\t\t\t\t\t\t最后观看时间:'+records[i].play_time+'\n' +
 					'\t\t\t\t\t\t\t</p>\n' +

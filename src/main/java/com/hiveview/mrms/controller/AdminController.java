@@ -48,7 +48,7 @@ public class AdminController {
 		AjaxResult ajaxResult = adminService.login(admin);
 		session.setAttribute("user", (Admin)ajaxResult.getData());
 		if(ajaxResult.getStatus() == 200) {
-			modelAndView.setViewName("admin/index");
+			modelAndView.setViewName("redirect:index.html");
 			return modelAndView;
 		}
 		modelAndView.addObject("msg", "用户名和密码不匹配");

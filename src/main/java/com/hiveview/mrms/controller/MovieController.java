@@ -27,6 +27,7 @@ import javax.xml.soap.Detail;
 import com.alibaba.fastjson.JSONObject;
 import com.hiveview.mrms.pojo.*;
 import com.hiveview.mrms.service.FavoriteService;
+import com.sun.imageio.plugins.common.ImageUtil;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -271,7 +272,11 @@ public class MovieController {
 			HttpServletRequest request) {
 		MultipartHttpServletRequest req = (MultipartHttpServletRequest)request;
 		Movie movie = this.initMovieInstance(req);
+		String fileName = UploadImageUtil.getImageName(file);
+		movie.setImgPath(IMG_UPLOAD_PATH+fileName);
+		//向数据库写入数据
 		AjaxResult ajaxResult = movieService.updateMovie(movie);
+		UploadImageUtil.uploadImage(IMG_UPLOAD_PATH,file, request);
 		return ajaxResult;
 	}
 	

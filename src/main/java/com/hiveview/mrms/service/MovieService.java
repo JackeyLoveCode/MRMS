@@ -224,6 +224,7 @@ public class MovieService {
 		map.put("language", movie.getLanguage());
 		map.put("director", movie.getDirector());
 		map.put("plot", movie.getPlot());
+		map.put("area",movie.getArea());
 		map.put("time",new SimpleDateFormat("yyyy-MM-dd").format(movie.getTime()));
 		return map;
 	}

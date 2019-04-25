@@ -9,8 +9,13 @@
   
 package com.hiveview.mrms.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +28,7 @@ import com.hiveview.mrms.pojo.AjaxResult;
 import com.hiveview.mrms.pojo.EasyUIDatagridResult;
 import com.hiveview.mrms.pojo.User;
 import com.hiveview.mrms.service.UserService;
+import org.springframework.web.servlet.ModelAndView;
 
 /**  
  * ClassName:UserController <br/>  
@@ -86,10 +92,12 @@ public class UserController {
 	 */
 	@RequestMapping("login")
 	@ResponseBody
-	public AjaxResult login(User user,String code,HttpSession session) {
+	public AjaxResult login(User user,String code,HttpServletRequest request) {
 		AjaxResult ajaxResult = new AjaxResult();
+		HttpSession session = request.getSession();
+		String isRegister = request.getParameter("isRegister");
 		String session_code = (String) session.getAttribute("code");
-		if(code != null && code.equalsIgnoreCase(session_code)) {
+		if("yes".equals(isRegister) || (code != null && code.equalsIgnoreCase(session_code))) {
 			ajaxResult = userService.login(user);
 			if(ajaxResult.getStatus() != -1) {
 				session.setAttribute("user",ajaxResult.getData());
@@ -100,7 +108,46 @@ public class UserController {
 		}
 		return ajaxResult;
 	}
-	
+
+	/**
+	 * 注册
+	 * @param user
+	 * @param request
+	 * @param response
+	 */
+	@RequestMapping("register")
+	public void register(User user, HttpServletRequest request, HttpServletResponse response){
+		try {
+			AjaxResult ajaxResult = userService.save(user);
+			StringBuffer loginUrlBuffer = new StringBuffer();
+			loginUrlBuffer.append("/user/login.do?isRegister=yes");
+			request.getRequestDispatcher(loginUrlBuffer.toString()).forward(request,response);
+		} catch (ServletException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * 查询用户名是否存在
+	 * @param user
+	 * @return
+	 */
+	@RequestMapping("queryNickNameIsExist")
+	@ResponseBody
+	public AjaxResult queryUserByNickname(User user){
+		AjaxResult ajaxResult = new AjaxResult();
+		List<User> userList = userService.findByNickname(user);
+		if(userList != null && userList.size() > 0){
+			ajaxResult.setData(userList.size());
+		}else{
+			ajaxResult.setData(0);
+		}
+		return ajaxResult;
+	}
+
 	@RequestMapping("logout")
 	public String logout(HttpSession session) {
 		session.invalidate();
