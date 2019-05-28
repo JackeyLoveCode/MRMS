@@ -46,7 +46,7 @@ public class AdminController {
 	public ModelAndView login(Admin admin,HttpSession session,HttpServletResponse response) {
 		ModelAndView modelAndView = new ModelAndView();
 		AjaxResult ajaxResult = adminService.login(admin);
-		session.setAttribute("user", (Admin)ajaxResult.getData());
+		session.setAttribute("admin", (Admin)ajaxResult.getData());
 		if(ajaxResult.getStatus() == 200) {
 			modelAndView.setViewName("redirect:index.html");
 			return modelAndView;

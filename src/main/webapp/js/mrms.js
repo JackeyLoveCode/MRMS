@@ -87,6 +87,10 @@ var moviesBySearch = [];
 function search(){
 				$("input[name='sign']").val('search');
 				var searchText = $("#searchText").val();
+				if(searchText == ''){
+					getPage(1,3)	;
+					return ;
+				};
 				$.ajax({
 					type:"POST",
 					cache:false,
@@ -118,7 +122,7 @@ function search(){
 				                "\t\t\t\t\t<img src=\""+"showImg.do?pathName="+moviesBySearch[i].img_path+"\"/>\n" +
 				                "\t\t\t\t</div>\n" +
 				                "\t\t\t\t<div style=\"float: left;width: 70%;\">\n" +
-				                "\t\t\t\t\t<div ><a href=\"movie/detail.do?id="+moviesBySearch[i].id+"\" target=\"_blank\" style=\"text-decoration:none;\">"+moviesBySearch[i].title+"</a></div>\n" +
+				                "\t\t\t\t\t<div ><a href=\"movie/detail.do?id="+moviesBySearch[i].id+"\" target=\"_self\" style=\"text-decoration:none;\">"+moviesBySearch[i].title+"</a></div>\n" +
 				                "\t\t\t\t\t<div>\n" +
 				                "\t\t\t\t\t\t主演:"+moviesBySearch[i].actors+"\n" +
 				                "\t\t\t\t\t</div>\n" +
@@ -187,7 +191,7 @@ function login(){
 
 			}else{
 				$("#errorMessage").css("display","block");
-				$("#imgObj").attr("src","validateCode.do?_t="+new Date().valueOf());
+				$("#imgObj").attr("src",contextPath+"/validateCode.do?_t="+new Date().valueOf());
 				$("#msgSpan").text(data.msg);
 			}
 		}
@@ -255,7 +259,7 @@ function queryByType(type){
 					"\t\t\t\t\t<img src=\""+"showImg.do?pathName="+movies[i].img_path+"\"/>\n" +
 					"\t\t\t\t</div>\n" +
 					"\t\t\t\t<div style=\"float: left;width: 70%;\">\n" +
-					"\t\t\t\t\t<div ><a href=\"movie/detail.do?id="+movies[i].id+"\" target=\"_blank\" style=\"text-decoration:none;\">"+movies[i].title+"</a></div>\n" +
+					"\t\t\t\t\t<div ><a href=\"movie/detail.do?id="+movies[i].id+"\" target=\"_self\" style=\"text-decoration:none;\">"+movies[i].title+"</a></div>\n" +
 					"\t\t\t\t\t<div>\n" +
 					"\t\t\t\t\t\t主演:"+movies[i].actors+"\n" +
 					"\t\t\t\t\t</div>\n" +
@@ -393,6 +397,11 @@ function showFavorites(page,rows) {
 		}
 	},'json');
 }
+
+/**
+ * 取消收藏
+ * @param id
+ */
 function cancelFav(id) {
 	var params = {
 		id:id

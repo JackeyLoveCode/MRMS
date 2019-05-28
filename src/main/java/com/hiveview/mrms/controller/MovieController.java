@@ -272,8 +272,10 @@ public class MovieController {
 			HttpServletRequest request) {
 		MultipartHttpServletRequest req = (MultipartHttpServletRequest)request;
 		Movie movie = this.initMovieInstance(req);
-		String fileName = UploadImageUtil.getImageName(file);
-		movie.setImgPath(IMG_UPLOAD_PATH+fileName);
+		if(!"".equals(file.getOriginalFilename())){
+			String fileName = UploadImageUtil.getImageName(file);
+			movie.setImgPath(IMG_UPLOAD_PATH+fileName);
+		}
 		//向数据库写入数据
 		AjaxResult ajaxResult = movieService.updateMovie(movie);
 		UploadImageUtil.uploadImage(IMG_UPLOAD_PATH,file, request);

@@ -177,7 +177,7 @@ public class MovieService {
 		}
 		if(condition.getYear() != null && !"全部".equals(condition.getYear())){
 			try {
-				criteria.andTimeEqualTo(new SimpleDateFormat("yyyy").parse(condition.getYear()));
+				criteria.andTimeGreaterThanOrEqualTo(new SimpleDateFormat("yyyy").parse(condition.getYear()));
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
